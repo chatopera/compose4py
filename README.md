@@ -24,7 +24,9 @@ All the usual function composition you know and love:
         print("mw_1: %s" % ctx)
         print("mw_1 loader_context: %s" % loader_context)
         ctx += ":mw1"
+        # call the next middleware and waiting the new ctx
         ctx = yield ctx
+        # use the latest ctx and process more logic
         ctx += ":post_mw1"
         return ctx
 
