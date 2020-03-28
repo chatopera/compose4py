@@ -66,6 +66,27 @@ def mw_3(ctx):
     ctx += ":mw3"
     return ctx
 
+def mw_dict_1(ctx):
+    print("pre mw_dict_1: %s" % ctx)
+    ctx["foo"] = "bar"
+    ctx = yield ctx
+    print("post mw_dict_1: %s" % ctx)
+    return ctx
+
+def mw_dict_2(ctx):
+    print("pre mw_dict_2: %s" % ctx)
+    ctx["__skipped__"] = True
+    ctx = yield ctx
+    print("post mw_dict_2: %s" % ctx)
+    return ctx
+
+def mw_dict_3(ctx):
+    print("pre mw_dict_3: %s" % ctx)
+    ctx = yield ctx
+    print("post mw_dict_3: %s" % ctx)
+    return ctx
+
+
 # run testcase: python /Users/hain/git/compose4py/tests/tst_compose.py Test.testExample
 class Test(unittest.TestCase):
     '''
@@ -78,21 +99,30 @@ class Test(unittest.TestCase):
         pass
 
     def test_map_compose(self):
-        logging.info("test_map_compose")
+        print("test_map_compose")
         compose = Compose(mw_1, mw_2, mw_3, loader_context = {"foo": "bar"})
         v = compose("foo")
+        print("final: %s" % v)
+
+    def test_map_compose_skip(self):
+        print("test_map_compose_skip")
+        compose = Compose(mw_dict_1, mw_dict_2, mw_dict_3)
+        v = compose(dict({
+            "foo": "bar"
+        }))
         print("final: %s" % v)
 
 
 def test():
     suite = unittest.TestSuite()
+    suite.addTest(Test("test_map_compose_skip"))
     suite.addTest(Test("test_map_compose"))
     runner = unittest.TextTestRunner()
     runner.run(suite)
 
-def main(argv):
+def main():
     test()
 
 if __name__ == '__main__':
     # /Users/hain/git/compose4py/tests/tst_compose.py --verbosity 1 # DEBUG 1; INFO 0; WARNING -1
-    app.run(main)
+    main()

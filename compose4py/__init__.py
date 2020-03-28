@@ -27,12 +27,12 @@
 """
    
 """
-__all__ = ["__copyright__", "__author__", "__date__", "__version__", "Compose"]
+__all__ = ["__copyright__", "__author__", "__date__", "__version__", "Compose", "SKIPPED"]
 
 __copyright__ = "Copyright (c) 2020 . All Rights Reserved"
 __author__ = "Hai Liang Wang"
 __date__ = "2020-03-21:10:16:05"
-__version__ = "1.2.0"
+__version__ = "1.3.1"
 
 import os, sys
 curdir = os.path.dirname(os.path.abspath(__file__))
@@ -52,6 +52,8 @@ from types import GeneratorType
 from collections import ChainMap
 from misc import arg_to_iter, wrap_loader_context
 
+# dict ctx中跳过后续的中间件
+SKIPPED = "__skipped__"
 
 # class MapCompose:
 #     '''
@@ -105,6 +107,11 @@ class Compose:
         for func in wrapped_funcs:
             if value is None and self.stop_on_none:
                 break
+
+            if isinstance(value, dict):
+                if "__skipped__" in value and value["__skipped__"] == True:
+                    break
+
             try:
                 ret = func(value)
                 if isinstance(ret, GeneratorType):

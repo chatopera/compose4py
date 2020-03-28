@@ -11,5 +11,6 @@ baseDir=$(cd `dirname "$0"`;pwd)
 [ -z "${BASH_SOURCE[0]}" -o "${BASH_SOURCE[0]}" = "$0" ] || return
 cd $baseDir/..
 source ~/venv-py3/bin/activate
+rm -rf dist
 python setup.py sdist bdist_wheel
 twine upload --repository-url https://upload.pypi.org/legacy/  dist/*
