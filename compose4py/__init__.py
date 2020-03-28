@@ -32,7 +32,7 @@ __all__ = ["__copyright__", "__author__", "__date__", "__version__", "Compose", 
 __copyright__ = "Copyright (c) 2020 . All Rights Reserved"
 __author__ = "Hai Liang Wang"
 __date__ = "2020-03-21:10:16:05"
-__version__ = "1.3.1"
+__version__ = "1.3.3"
 
 import os, sys
 curdir = os.path.dirname(os.path.abspath(__file__))
@@ -109,7 +109,7 @@ class Compose:
                 break
 
             if isinstance(value, dict):
-                if "__skipped__" in value and value["__skipped__"] == True:
+                if SKIPPED in value and value[SKIPPED] == True:
                     break
 
             try:
@@ -118,8 +118,11 @@ class Compose:
                     post_funcs.append(ret)
                     value = next(ret)
                 else: value = ret
+            except StopIteration as e:
+                if e.value:
+                    value =  e.value
             except Exception as e:
-                raise ValueError("Error in Compose with "
+                raise ValueError("Forward Error in Compose with "
                                  "%s value=%r error='%s: %s'" %
                                  (str(func), value, type(e).__name__, str(e)))
 
@@ -129,9 +132,10 @@ class Compose:
             try:
                 post_funcs[i].send(value)
             except StopIteration as e:
-                value =  e.value
+                if e.value:
+                    value =  e.value
             except Exception as e:
-                raise ValueError("Error in Compose with "
+                raise ValueError("Backward Error in Compose with "
                                  "%s value=%r error='%s: %s'" %
                                  (str(post_funcs[i]), value, type(e).__name__, str(e)))        
 
